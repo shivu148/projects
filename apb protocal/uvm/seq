@@ -1,0 +1,76 @@
+class write_data extends uvm_sequence#(apb_seq_item);
+  `uvm_object_utils(write_data)
+
+ apb_seq_item tx;
+  function new(string name ="write_data");
+ super.new(name);
+ endfunction
+
+ virtual task body();
+ repeat(15)
+ begin
+   tx = apb_seq_item::type_id::create("tx");
+ 
+   start_item(tx);
+   tx.randomize();
+ tx.op = writed;
+   finish_item(tx);
+ end
+ endtask
+
+endclass
+///////////////////////////////////////////////////////////////////
+class read_data extends uvm_sequence#(apb_seq_item);
+ `uvm_object_utils(read_data)
+
+apb_seq_item tx;
+  function new(string name ="read_data");
+ super.new(name);
+ endfunction
+
+ virtual task body();
+ repeat(15)
+ begin
+    
+ 
+tx = apb_seq_item::type_id::create("tx");
+ 
+ 
+   start_item(tx);
+   tx.randomize();
+ tx.op = readd;
+   finish_item(tx);
+ end
+ endtask
+
+endclass
+////////////////////////////////////////////////////////////////////
+class write_read extends uvm_sequence#(apb_seq_item); //////read after write
+ `uvm_object_utils(write_read)
+
+ apb_seq_item tx;
+ function new(string name = "write_read");
+ super.new(name);
+ endfunction
+
+ virtual task body();
+ repeat(15)
+ begin
+  tx = apb_seq_item::type_id::create("tx");
+ 
+ 
+
+   start_item(tx);
+   tx.randomize;
+ tx.op = writed;
+   finish_item(tx);
+
+   start_item(tx);
+   tx.randomize();
+ tx.op = readd;
+   finish_item(tx);
+ end
+ endtask
+
+endclass
+////////////////////////////////////////////////////////////////////////////////////
