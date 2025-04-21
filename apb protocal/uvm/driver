@@ -1,0 +1,67 @@
+class apb_drv extends uvm_driver #(apb_seq_item);
+  `uvm_component_utils(apb_drv)
+
+ virtual apb_if vif;
+ apb_seq_item tx;
+
+
+  function new(string name="",uvm_component parent);
+    super.new(name,parent);
+ endfunction
+
+  function void build_phase(uvm_phase phase);
+ super.build_phase(phase);
+ tx = apb_seq_item::type_id::create("tx");
+
+   uvm_config_db#(virtual apb_if)::get(this,"","intf",vif);
+ 
+ endfunction
+
+
+  task run_phase(uvm_phase phase);
+
+ forever 
+   begin
+
+   seq_item_port.get_next_item(tx);
+   if(tx.op == rst)
+ begin
+ vif.presetn <= 1'b0;
+ vif.paddr <= 'h0;
+ vif.pwdata <= 'h0;
+ vif.pwrite <= 'b0;
+ vif.psel <= 'b0;
+ vif.penable <= 'b0;
+ @(posedge vif.pclk);
+ end
+     
+   else if(tx.op == writed)
+ begin
+ vif.psel <= 1'b1;
+ vif.paddr <= tx.PADDR;
+ vif.pwdata <= tx.PWDATA;
+ vif.presetn <= 1'b1;
+ vif.pwrite <= 1'b1;
+ @(posedge vif.pclk);
+ vif.penable <= 1'b1;
+ @(negedge vif.pready);
+ vif.penable <= 1'b0;
+ end
+   
+   else if(tx.op == readd)
+ begin
+ vif.psel <= 1'b1;
+ vif.paddr <= tx.PADDR;
+ vif.presetn <= 1'b1;
+ vif.pwrite <= 1'b0;
+ @(posedge vif.pclk);
+ vif.penable <= 1'b1;
+ @(negedge vif.pready);
+ vif.penable <= 1'b0;
+ end
+ seq_item_port.item_done();
+
+ end
+ endtask
+
+endclass
