@@ -1,0 +1,59 @@
+class apb_scb extends uvm_scoreboard;
+  `uvm_component_utils(apb_scb)
+  
+  uvm_analysis_imp#(apb_seq_item,apb_scb) scb_ip;
+  
+  bit [31:0] array[32] = '{default:0};
+ bit [31:0] addr = 0;
+ bit [31:0] data_rd = 0;
+  
+  function new(string name="",uvm_component parent);
+    super.new(name,parent);
+ endfunction
+
+  function void build_phase(uvm_phase phase);
+ super.build_phase(phase);
+    scb_ip=new("scb_ip",this);
+ endfunction
+
+
+  function void write(apb_seq_item tx);
+    //////////////////////////////////////////////
+    if(tx.op == rst)
+ begin
+   `uvm_info("SCB", "SYSTEM RESET DETECTED", UVM_NONE);
+ end
+    ////////////////////////////////////
+    else if (tx.op == writed)
+ begin
+   if(tx.PSLVERR == 1'b1)
+ begin
+   `uvm_info("SCB", "SLV ERROR during WRITE OP", UVM_NONE);
+ end
+ else
+ begin
+   array[tx.PADDR] = tx.PWDATA;
+   `uvm_info("SCB", $sformatf("DATA WRITE OP addr:%0d, wdata:%0d arr_wr:%0d",tx.PADDR,tx.PWDATA, array[tx.PADDR]), UVM_NONE);
+ end
+ end
+    /////////////////////////////////////////////////////////
+    
+    
+    else if (tx.op == readd)
+ begin
+   if(tx.PSLVERR == 1'b1)
+ begin
+ `uvm_info("SCO", "SLV ERROR during READ OP", UVM_NONE);
+ end
+ else
+ begin
+   data_rd = array[tx.PADDR];
+   if (data_rd == tx.PRDATA)
+     `uvm_info("SCO", $sformatf("DATA MATCHED : addr:%0d, rdata:%0d",tx.PADDR,tx.PRDATA), UVM_NONE)
+ else
+   `uvm_info("SCB",$sformatf("TEST FAILED : addr:%0d, rdata:%0d data_rd_arr:%0d",tx.PADDR,tx.PRDATA,data_rd), UVM_NONE)
+ end
+ end
+
+ endfunction
+endclass
