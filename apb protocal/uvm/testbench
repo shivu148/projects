@@ -1,0 +1,51 @@
+`include "uvm_macros.svh"
+ import uvm_pkg::*;
+`include "apb_intf.sv"
+`include "apb_seq_item.sv"
+`include  "apb_seq.sv"
+`include "apb_sqr.sv"
+`include "apb_drv.sv"
+`include "apb_mon.sv"
+`include "apb_agent.sv"
+`include "apb_scb.sv"
+`include "apb_env.sv"
+`include "apb_test.sv"
+
+
+
+
+
+module tb;
+
+
+ apb_if pif();
+
+  apb_ram dut (.presetn(pif.presetn),
+               .pclk(pif.pclk), 
+               .psel(pif.psel), 
+               .penable(pif.penable), 
+               .pwrite(pif.pwrite), 
+               .paddr(pif.paddr), 
+               .pwdata(pif.pwdata), 
+               .prdata(pif.prdata), 
+               .pready(pif.pready), 
+               .pslverr(pif.pslverr));
+
+ initial begin
+ pif.pclk <= 0;
+ end
+ always #10 pif.pclk <= ~pif.pclk;
+
+
+ initial begin
+   uvm_config_db#(virtual apb_if)::set(null, "*", "intf", pif);
+   run_test("apb_test");
+ end
+
+
+ initial begin
+ $dumpfile("dump.vcd");
+ $dumpvars;
+ end
+
+endmodule
