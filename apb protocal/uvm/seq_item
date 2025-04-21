@@ -1,0 +1,24 @@
+typedef enum bit [1:0] {readd = 0, writed = 1, rst = 2} oper_mode;
+//////////////////////////////////////////////////////////////////////////////////
+class apb_seq_item extends uvm_sequence_item;
+  `uvm_object_utils(apb_seq_item)
+
+
+ rand oper_mode op;
+ rand logic PWRITE;
+rand logic [31 : 0] PWDATA;
+rand logic [31 : 0] PADDR;
+ 
+logic PREADY;
+logic PSLVERR;
+ logic [31: 0] PRDATA;
+  
+
+ constraint addr_c { PADDR <= 31; }
+ 
+  
+  function new(string name = "apb_seq_item");
+ super.new(name);
+ endfunction
+  
+endclass 
